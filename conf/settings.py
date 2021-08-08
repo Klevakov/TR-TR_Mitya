@@ -2,14 +2,18 @@
 
 import os
 
-
+# Точка входа - url интернет-магазина
 ENTRY_POINT = os.getenv('ENTRY_POINT', 'https://www.dns-shop.ru/')
 
-GECKO_PATH = '/home/dmitry/Projects/DNStest/tr-tr_mitya/driver'
+# Путь к geckodriver
+GECKO_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'trtr_mitya/driver/geckodriver'))
 
-# MAX_RETRIES = int(os.getenv('MAX_RETRIES', '5'))
+# Путь к модулям с тестами
+TESTS_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'trtr_mitya'))
 
-# USER_LOGIN = os.getenv('USER_LOGIN', 'dklevakov@mail.ru')
+# Время ожидания отклика браузера в минутах
+BROWSER_TIMEOUT = int(os.getenv('BROWSER_TIMEOUT', '2'))
 
-# USER_PASSWORD = os.getenv('USER_PASSWORD', 'Yjdhckd6s')
-
+TEST = os.getenv('TEST', '')
+if TEST:
+    TEST = TEST.split(',')
