@@ -5,9 +5,12 @@ import inspect
 import pkgutil
 
 from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.wait import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 
 from conf import settings
-from conf.settings import GECKO_PATH, ENTRY_POINT, TESTS_PATH
+from conf.settings import GECKO_PATH, ENTRY_POINT, TESTS_PATH, BROWSER_TIMEOUT
 
 
 class OrderedClass(type):
@@ -67,6 +70,24 @@ class TestBase(metaclass=OrderedClass):
             else:
                 # Выводим сообщение об успехе
                 out_green('Успех!')
+
+    def find_by_css(self, selector):
+        """Shortcut для поиска элемента по CSS-селектору. """
+
+        return self.browser.find_element_by_css_selector(selector)
+
+    def wait_for_visible_element(self, selector):
+        """Ждет пока элемент станет видимым. """
+
+        element = WebDriverWait(self.browser, BROWSER_TIMEOUT).until(
+            EC.visibility_of_element_located((By.CSS_SELECTOR, selector))
+        )
+        return element
+
+
+
+
+
 
 
 def get_tests():
