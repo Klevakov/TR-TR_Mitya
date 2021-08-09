@@ -12,7 +12,7 @@ GECKO_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'trtr
 TESTS_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'trtr_mitya'))
 
 # Время ожидания отклика браузера в минутах
-BROWSER_TIMEOUT = int(os.getenv('BROWSER_TIMEOUT', '2'))
+BROWSER_TIMEOUT = int(os.getenv('BROWSER_TIMEOUT', '20'))
 
 TEST = os.getenv('TEST', '')
 if TEST:

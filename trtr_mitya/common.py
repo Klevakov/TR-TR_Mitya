@@ -1,4 +1,5 @@
 """Общие действия для разных тестов для ИМ DNS. """
+import time
 
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
@@ -22,11 +23,14 @@ class CommonActions:
 
         # Вводим в поле города "Ростов-на-Дону"
         find_city.send_keys('Ростов-на-Дону')
+        time.sleep(2)
 
         # В выпадающем списке кликаем на г.Ростов-на-Дону
-        choice = self.find_by_css('.cities-search '
-                                  'a[data-city-id="9437a276-5970-11de-8bf7-00151716f9f5"]')
+        choice = self.wait_for_element_clickable(
+            '.cities-search a[data-city-id="9437a276-5970-11de-8bf7-00151716f9f5"]'
+        )
         choice.click()
+        time.sleep(5)
 
         # Проверяем что выбран город Ростов-на-Дону
         city = self.find_by_css('.header-top .w-choose-city-widget-label').text
