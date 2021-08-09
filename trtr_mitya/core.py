@@ -88,6 +88,7 @@ class TestBase(metaclass=OrderedClass):
                 # Выводим сообщение о провале и сообщение об исключении на экран
                 out_red(f'Провал! \n {repr(e)} \n')
                 out_red(traceback.format_exc())
+                self.browser.quit()
             else:
                 time.sleep(3)
                 self.browser.quit()
@@ -192,4 +193,3 @@ def out_green(text):
     """Выводит в консоль сообщение зеленым цветом. """
 
     print("\033[32m {}" .format(text))
-
