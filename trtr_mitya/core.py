@@ -78,7 +78,7 @@ class TestBase(metaclass=OrderedClass):
         for test in self._tests:
             # Выводим название текущего теста
             description = test.__doc__
-            print(f'Запускаю "{description}":', end=' ')
+            print("\033[37m {}" .format(f'Запускаю "{description}":', end=' '))
 
             # Запускаем тест
             try:
@@ -89,6 +89,8 @@ class TestBase(metaclass=OrderedClass):
                 out_red(f'Провал! \n {repr(e)} \n')
                 out_red(traceback.format_exc())
             else:
+                time.sleep(3)
+                self.browser.quit()
                 # Выводим сообщение об успехе
                 out_green('Успех!')
 
@@ -178,7 +180,6 @@ def run(*args):
         test = test_class()
         test._start_browser()
         test.run()
-        test.browser.quit()
 
 
 def out_red(text):
