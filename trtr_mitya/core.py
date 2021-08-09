@@ -135,12 +135,18 @@ class TestBase(metaclass=OrderedClass):
         subdirectory_elem.click()
 
     def find_element_by_css_and_text(self, selector, text: str):
+        """Находит список элементов по селектору и возвращает тот, у которого соответствует текст. """
+
         elem_list = self.browser.find_elements_by_css_selector(selector)
         for elem in elem_list:
             if elem.text.strip() == text:
                 return elem
 
+    def click_to_first_element(self, selector):
+        """Находит список элементов по селектору и кликает на первый элемент. """
 
+        elem_list = self.browser.find_elements_by_css_selector(selector)
+        elem_list[0].click()
 
 
 def get_tests():

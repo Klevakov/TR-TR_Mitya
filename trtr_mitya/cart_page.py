@@ -21,7 +21,7 @@ class CartPageTest(TestBase, CommonActions):
         self.go_to_subdirectory(directory_selector, subdirectory_selector)
 
         # На первом товаре нажимаем "Купить"
-        self.browser.find_elements_by_class_name('buy-btn')[0].click()
+        self.click_to_first_element('.buy-btn')
 
         # Кликаем на Корзину
         self.check_and_click('.buttons .cart-link')
