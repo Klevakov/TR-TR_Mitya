@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 """Запускалка тестов. """
 
 from trtr_mitya.core import get_tests, run
@@ -13,4 +14,5 @@ def main():
     run(*tests)
 
 
-main()
+if __name__ == '__main__':
+    main()
