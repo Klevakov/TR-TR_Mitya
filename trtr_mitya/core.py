@@ -13,7 +13,7 @@ from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
 from conf import settings
-from conf.settings import GECKO_PATH, ENTRY_POINT, TESTS_PATH, BROWSER_TIMEOUT
+from conf.settings import GECKO_PATH, ENTRY_POINT, TESTS_PATH, WAIT_ELEMENT
 
 
 def wait_for_execution(func):
@@ -94,9 +94,7 @@ class TestBase(metaclass=OrderedClass):
                     # Если попытки исчерпаны - выводим сообщение о провале
                     if i == settings.MAX_RETRIES - 1:
                         out_red(f'Провал! \n {repr(e)} \n')
-                    time.sleep(5)
                 else:
-                    time.sleep(3)
                     self.browser.quit()
                     # Выводим сообщение об успехе
                     out_green('Успех!')
@@ -110,7 +108,7 @@ class TestBase(metaclass=OrderedClass):
     def wait_for_visible_element(self, selector):
         """Ждет пока элемент станет видимым. """
 
-        element = WebDriverWait(self.browser, BROWSER_TIMEOUT).until(
+        element = WebDriverWait(self.browser, WAIT_ELEMENT).until(
             EC.visibility_of_element_located((By.CSS_SELECTOR, selector))
         )
         return element
@@ -118,10 +116,18 @@ class TestBase(metaclass=OrderedClass):
     def wait_for_element_clickable(self, selector):
         """Ждет пока на элемент можно будет кликнуть. """
 
-        element = WebDriverWait(self.browser, BROWSER_TIMEOUT).until(
+        element = WebDriverWait(self.browser, WAIT_ELEMENT).until(
             EC.element_to_be_clickable((By.CSS_SELECTOR, selector))
         )
         return element
+
+    def wait_for_elements(self, selector):
+        """Ждет пока на подгрузится список элементов, видимых на странице. """
+
+        elements = WebDriverWait(self.browser, WAIT_ELEMENT).until(
+            EC.presence_of_all_elements_located((By.CSS_SELECTOR, selector))
+        )
+        return elements
 
     def check_by_css(self, selector):
         """Проверяет по CSS-селектору, существует ли элемент. """
@@ -138,16 +144,19 @@ class TestBase(metaclass=OrderedClass):
     def go_to_subdirectory(self, directory_selector, subdirectory_selector):
         """Переходит из меню в подкаталог. """
 
-        directory_elem = self.wait_for_visible_element(directory_selector)
+        # Наводим мышь на ссылку каталога
+        directory_elem = self.wait_for_element_clickable(directory_selector)
         hover_mouse = ActionChains(self.browser)
         hover_mouse.move_to_element(directory_elem).perform()
+
+        # Кликаем на ссылку подкаталога
         subdirectory_elem = self.wait_for_element_clickable(subdirectory_selector)
         subdirectory_elem.click()
 
     def find_element_by_css_and_text(self, selector, text: str):
         """Находит список элементов по селектору и возвращает тот, у которого соответствует текст. """
 
-        elem_list = self.browser.find_elements_by_css_selector(selector)
+        elem_list = self.wait_for_elements(selector)
         for elem in elem_list:
             if elem.text.strip() == text:
                 return elem
@@ -155,7 +164,7 @@ class TestBase(metaclass=OrderedClass):
     def click_to_first_element(self, selector):
         """Находит список элементов по селектору и кликает на первый элемент. """
 
-        elem_list = self.browser.find_elements_by_css_selector(selector)
+        elem_list = self.wait_for_elements(selector)
         elem_list[0].click()
 
 

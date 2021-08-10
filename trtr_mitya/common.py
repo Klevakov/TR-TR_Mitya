@@ -1,6 +1,9 @@
 """Общие действия для разных тестов для ИМ DNS. """
 import time
 
+from selenium.common.exceptions import TimeoutException
+
+from conf.settings import MAX_NUMBERS_of_ATTEMPTS
 from exceptions import InvalidElementValue
 
 
@@ -16,19 +19,30 @@ class CommonActions:
         # Ожидаем появления поля для ввода текста не более 5 мин
         find_city = self.wait_for_visible_element('input[placeholder="Найти город"]')
 
-        # Вводим название города
-        find_city.send_keys(city)
-        time.sleep(5)
+        for _ in range(MAX_NUMBERS_of_ATTEMPTS):
+            try:
+                # Вводим название города
+                find_city.send_keys(city)
 
-        # Перепроверяем варианты раскрывающегося списка на совпадение с названием искомого города
-        choice = self.browser.find_elements_by_css_selector('.cities-search span')
+                # Перепроверяем варианты раскрывающегося списка на совпадение с названием искомого города
+                choice = self.wait_for_elements('.cities-search span')
+            except TimeoutException:
+                continue
+            else:
+                break
+
         for town in choice:
             if town.text.split('\n')[0].strip() == city:
                 town.click()
                 break
 
-        # Проверяем что выбран город верный город
-        curent_city = self.find_by_css('.header-top .w-choose-city-widget-label').text
+        # Проверяем что выбран верный город
+        for i in range(MAX_NUMBERS_of_ATTEMPTS):
+            curent_city = self.find_by_css('.header-top .w-choose-city-widget-label').text
+            if curent_city == city:
+                break
+            time.sleep(2)
+
         if curent_city != city:
             raise InvalidElementValue('Ожидается {}. Выбран другой город.'.format(city))
 
@@ -38,6 +52,8 @@ class CommonActions:
         # Тестируем на разделе "Смартфоны и гаджеты -> Смартфоны"
         directory_selector = 'a[href="/catalog/17a890dc16404e77/smartfony-planshety-i-fototexnika/"]'
         subdirectory_selector = 'a[href="/catalog/17a8a01d16404e77/smartfony/"]'
+
+        # Переходим в подкаталог "Смартфоны"
         self.go_to_subdirectory(directory_selector, subdirectory_selector)
 
         # На первом товаре нажимаем "Купить"

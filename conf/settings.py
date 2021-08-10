@@ -14,8 +14,14 @@ TESTS_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'trtr
 # Количество попыток провести тест
 MAX_RETRIES = int(os.getenv('MAX_RETRIES', '5'))
 
-# Время ожидания отклика браузера в минутах
-BROWSER_TIMEOUT = int(os.getenv('BROWSER_TIMEOUT', '20'))
+# Время ожидания подгрузки элемента в секундах
+WAIT_ELEMENT = int(os.getenv('WAIT_ELEMENT', '15'))
+
+# Максимальноеколичество попыток получить нужный элемент
+MAX_NUMBERS_of_ATTEMPTS = int(os.getenv('MAX_NUMBERS_of_ATTEMPTS', '10'))
+
+# Максимальное время на выполнение одного теста в минутах
+BROWSER_TIMEOUT = int(os.getenv('BROWSER_TIMEOUT', '5'))
 
 TEST = os.getenv('TEST', '')
 if TEST:
