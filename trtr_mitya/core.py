@@ -61,7 +61,7 @@ class TestBase(metaclass=OrderedClass):
         for test in self._tests:
             # Выводим название текущего теста
             description = test.__doc__
-            out_white("{}" .format(f'Запускаю "{description}":', end=' '))
+            out_white(f'Запускаю "{description}":')
 
             for i in range(MAX_RETRIES):
                 # Запускаем тест
@@ -210,4 +210,4 @@ def out_grey(text):
 def out_white(text):
     """Выводит в консоль сообщение зеленым цветом. """
 
-    print("\033[38m {}" .format(text))
+    print("\033[38m {}" .format(text), end=' ')
