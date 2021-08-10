@@ -30,7 +30,7 @@ class CommonActions:
         # Проверяем что выбран город верный город
         curent_city = self.find_by_css('.header-top .w-choose-city-widget-label').text
         if curent_city != city:
-            raise InvalidElementValue(f'Ожидается {city}. Выбран другой город.')
+            raise InvalidElementValue('Ожидается {}. Выбран другой город.'.format(city))
 
     def add_product_to_cart(self):
         """Добавляет товар и переходит в корзину. """

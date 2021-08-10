@@ -11,6 +11,9 @@ GECKO_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'trtr
 # Путь к модулям с тестами
 TESTS_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'trtr_mitya'))
 
+# Количество попыток провести тест
+MAX_RETRIES = int(os.getenv('MAX_RETRIES', '5'))
+
 # Время ожидания отклика браузера в минутах
 BROWSER_TIMEOUT = int(os.getenv('BROWSER_TIMEOUT', '20'))
 

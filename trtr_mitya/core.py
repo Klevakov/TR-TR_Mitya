@@ -78,22 +78,29 @@ class TestBase(metaclass=OrderedClass):
         for test in self._tests:
             # Выводим название текущего теста
             description = test.__doc__
-            print("\033[37m {}" .format(f'Запускаю "{description}":', end=' '))
+            out_white("{}" .format(f'Запускаю "{description}":', end=' '))
 
-            # Запускаем тест
-            try:
-                test()
-            # Отлавливаем исключения
-            except BaseException as e:
-                # Выводим сообщение о провале и сообщение об исключении на экран
-                out_red(f'Провал! \n {repr(e)} \n')
-                out_red(traceback.format_exc())
-                self.browser.quit()
-            else:
-                time.sleep(3)
-                self.browser.quit()
-                # Выводим сообщение об успехе
-                out_green('Успех!')
+            for i in range(settings.MAX_RETRIES):
+                # Запускаем тест
+                try:
+                    self._start_browser()
+                    test()
+                # Отлавливаем исключения
+                except BaseException as e:
+                    # Выводим сообщение об исключении на экран
+                    out_grey(f'{i+1} - я попытка неудачная. Ошибка:\n' + traceback.format_exc())
+                    self.browser.quit()
+
+                    # Если попытки исчерпаны - выводим сообщение о провале
+                    if i == settings.MAX_RETRIES - 1:
+                        out_red(f'Провал! \n {repr(e)} \n')
+                    time.sleep(5)
+                else:
+                    time.sleep(3)
+                    self.browser.quit()
+                    # Выводим сообщение об успехе
+                    out_green('Успех!')
+                    break
 
     def find_by_css(self, selector):
         """Shortcut для поиска элемента по CSS-селектору. """
@@ -179,7 +186,6 @@ def run(*args):
 
     for test_class in args:
         test = test_class()
-        test._start_browser()
         test.run()
 
 
@@ -193,3 +199,15 @@ def out_green(text):
     """Выводит в консоль сообщение зеленым цветом. """
 
     print("\033[32m {}" .format(text))
+
+
+def out_grey(text):
+    """Выводит в консоль сообщение зеленым цветом. """
+
+    print("\033[37m {}" .format(text))
+
+
+def out_white(text):
+    """Выводит в консоль сообщение зеленым цветом. """
+
+    print("\033[38m {}" .format(text))

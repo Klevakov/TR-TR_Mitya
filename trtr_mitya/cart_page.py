@@ -12,9 +12,6 @@ class CartPageTest(TestBase, CommonActions):
     def test_removing_product_from_cart(self):
         """Тест удаления товара из корзины. """
 
-        # Переключаем город на Ростов-на-Дону.
-        self.change_city('Ростов-на-Дону')
-
         # Добавляем товар и переходим в корзину
         self.add_product_to_cart()
 
