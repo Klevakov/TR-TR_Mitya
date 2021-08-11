@@ -25,7 +25,7 @@ class OrderedClass(type):
 
     def __new__(cls, name, bases, classdict):
         # Создаем атрибут класса со списком атрибутов
-        classdict['__ordered__'] = [key for key in classdict.keys()]
+        classdict['__ordered__'] = list(classdict.keys())
         return type.__new__(cls, name, bases, classdict)
 
 
