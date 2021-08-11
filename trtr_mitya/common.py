@@ -24,7 +24,8 @@ class CommonActions:
                 # Вводим название города
                 find_city.send_keys(city)
 
-                # Перепроверяем варианты раскрывающегося списка на совпадение с названием искомого города
+                # Перепроверяем варианты раскрывающегося списка
+                # на совпадение с названием искомого города
                 choice = self.wait_for_elements('.cities-search span')
             except TimeoutException:
                 continue
@@ -50,7 +51,8 @@ class CommonActions:
         """Добавляет товар и переходит в корзину. """
 
         # Тестируем на разделе "Смартфоны и гаджеты -> Смартфоны"
-        directory_selector = 'a[href="/catalog/17a890dc16404e77/smartfony-planshety-i-fototexnika/"]'
+        directory_selector = ('a[href="/catalog/17a890dc16404e77/'
+                              'smartfony-planshety-i-fototexnika/"]')
         subdirectory_selector = 'a[href="/catalog/17a8a01d16404e77/smartfony/"]'
 
         # Переходим в подкаталог "Смартфоны"
