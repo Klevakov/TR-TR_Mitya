@@ -38,7 +38,8 @@ class OrderedClass(type):
 
     @classmethod
     def __prepare__(cls, _name, _bases):
-        # Возвращает словарь, ключи которого представляют упорядоченное пространство имен класса и их значения
+        # Возвращает словарь, ключи которого представляют упорядоченное пространство имен класса
+        # и их значения
         return dict()
 
     def __new__(cls, name, bases, classdict):
@@ -154,7 +155,10 @@ class TestBase(metaclass=OrderedClass):
         subdirectory_elem.click()
 
     def find_element_by_css_and_text(self, selector, text: str):
-        """Находит список элементов по селектору и возвращает тот, у которого соответствует текст. """
+        """
+        Находит список элементов по селектору и возвращает тот,
+        у которого соответствует текст.
+        """
 
         elem_list = self.wait_for_elements(selector)
         for elem in elem_list:
