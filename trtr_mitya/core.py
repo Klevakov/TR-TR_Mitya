@@ -3,7 +3,6 @@
 import importlib
 import inspect
 import pkgutil
-import time
 import traceback
 
 from selenium import webdriver
@@ -12,25 +11,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
-from conf import settings
-from conf.settings import GECKO_PATH, ENTRY_POINT, TESTS_PATH, WAIT_ELEMENT
-
-
-def wait_for_execution(func):
-    """Декоратор для повторного вызова метода. """
-
-    def wrapper(*args, **kwargs):
-        count = 0
-        while count < 3:
-            try:
-                func(*args, **kwargs)
-            except BaseException:
-                time.sleep(3)
-                count += 1
-                continue
-            else:
-                break
-    return wrapper
+from conf.settings import ENTRY_POINT, GECKO_PATH, MAX_RETRIES, TEST, TESTS_PATH, WAIT_ELEMENT
 
 
 class OrderedClass(type):
@@ -80,7 +61,7 @@ class TestBase(metaclass=OrderedClass):
             description = test.__doc__
             out_white("{}" .format(f'Запускаю "{description}":', end=' '))
 
-            for i in range(settings.MAX_RETRIES):
+            for i in range(MAX_RETRIES):
                 # Запускаем тест
                 try:
                     self._start_browser()
@@ -92,7 +73,7 @@ class TestBase(metaclass=OrderedClass):
                     self.browser.quit()
 
                     # Если попытки исчерпаны - выводим сообщение о провале
-                    if i == settings.MAX_RETRIES - 1:
+                    if i == MAX_RETRIES - 1:
                         out_red(f'Провал! \n {repr(e)} \n')
                 else:
                     self.browser.quit()
@@ -178,12 +159,12 @@ def get_tests():
     # путь к модулю, название модуля и булевское значение
     for _, module_name, _ in pkgutil.iter_modules([TESTS_PATH]):
         # Передаем в переменную объект - модуль
-        mod = importlib.import_module(f'{module_name}')
+        mod = importlib.import_module(f'trtr_mitya.{module_name}')
         # Перебираем список из кортежей (название класса, объект класса)
         for cls_name, obj in inspect.getmembers(mod):
             if cls_name.endswith('Test') and inspect.isclass(obj):
-                if settings.TEST:
-                    if cls_name in settings.TEST:
+                if TEST:
+                    if cls_name in TEST:
                         tests.add(obj)
                     continue
                 tests.add(obj)
