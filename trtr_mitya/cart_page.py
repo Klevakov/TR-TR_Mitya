@@ -1,10 +1,10 @@
 """Тесты корзины"""
 import time
 
-from common import CommonActions
+from .common import CommonActions
 from conf.settings import MAX_NUMBERS_of_ATTEMPTS
-from core import TestBase
-from exceptions import InvalidElementValue
+from .core import TestBase
+from .exceptions import InvalidElementValue
 
 
 class CartPageTest(TestBase, CommonActions):

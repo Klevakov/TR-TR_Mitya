@@ -4,7 +4,7 @@ import time
 from selenium.common.exceptions import TimeoutException
 
 from conf.settings import MAX_NUMBERS_of_ATTEMPTS
-from exceptions import InvalidElementValue
+from .exceptions import InvalidElementValue
 
 
 class CommonActions:
