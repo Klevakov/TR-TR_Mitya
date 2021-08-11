@@ -6,6 +6,7 @@ import pkgutil
 import traceback
 
 from selenium import webdriver
+from selenium.common.exceptions import WebDriverException
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
@@ -68,14 +69,14 @@ class TestBase(metaclass=OrderedClass):
                     self._start_browser()
                     test()
                 # Отлавливаем исключения
-                except BaseException as e:
+                except WebDriverException as exc:
                     # Выводим сообщение об исключении на экран
                     out_grey(f'{i+1} - я попытка неудачная. Ошибка:\n' + traceback.format_exc())
                     self.browser.quit()
 
                     # Если попытки исчерпаны - выводим сообщение о провале
                     if i == MAX_RETRIES - 1:
-                        out_red(f'Провал! \n {repr(e)} \n')
+                        out_red(f'Провал! \n {repr(exc)} \n')
                 else:
                     self.browser.quit()
                     # Выводим сообщение об успехе
