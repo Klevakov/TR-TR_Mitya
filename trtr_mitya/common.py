@@ -38,7 +38,7 @@ class CommonActions:
                 break
 
         # Проверяем что выбран верный город
-        for i in range(MAX_NUMBERS_of_ATTEMPTS):
+        for _ in range(MAX_NUMBERS_of_ATTEMPTS):
             curent_city = self.find_by_css('.header-top .w-choose-city-widget-label').text
             if curent_city == city:
                 break
