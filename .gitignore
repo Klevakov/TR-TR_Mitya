@@ -1,7 +1,4 @@
 .idea
 __pycache__
 geckodriver.log
-LICENSE.md
-example.py
-customer_profile_page.py
 .env
