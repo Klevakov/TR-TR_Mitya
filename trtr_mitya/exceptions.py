@@ -8,6 +8,9 @@ class InvalidElementValue(Exception):
     """
 
     def __init__(self, text='Элемент найден, но его значение не соответствует ожидаемому'):
+        super().__init__()
+        # super().__init__() Используется, когда метод класса-предка имеет метод __init__,
+        # который не вызывается производным классом.
         self.txt = text
 
     def __str__(self):
