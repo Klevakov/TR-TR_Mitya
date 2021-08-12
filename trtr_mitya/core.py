@@ -146,6 +146,7 @@ class TestBase(metaclass=OrderedClass):
         for elem in elem_list:
             if elem.text.strip() == text:
                 return elem
+        return None
 
     def click_to_first_element(self, selector):
         """Находит список элементов по селектору и кликает на первый элемент. """
