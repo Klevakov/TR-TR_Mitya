@@ -6,7 +6,7 @@ import pkgutil
 import traceback
 
 from selenium import webdriver
-from selenium.common.exceptions import WebDriverException
+from selenium.common.exceptions import WebDriverException, NoSuchElementException
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
@@ -38,7 +38,7 @@ class TestBase(metaclass=OrderedClass):
         self._tests = []
 
         # Заполняем список тестов
-        for method in self.__ordered__:
+        for method in self.__ordered__:  # pylint: disable=E1101
             if method.startswith('test_'):
                 self._tests.append(getattr(self, method))
 
@@ -114,8 +114,12 @@ class TestBase(metaclass=OrderedClass):
 
     def check_by_css(self, selector):
         """Проверяет по CSS-селектору, существует ли элемент. """
-
-        return self.browser.is_element_present_by_css(selector)
+        try:
+            self.find_by_css(selector)
+        except NoSuchElementException:
+            return False
+        else:
+            return True
 
     def check_and_click(self, selector):
         """Проверяет по CSS-селектору, существует ли элемент и кликает на него. """

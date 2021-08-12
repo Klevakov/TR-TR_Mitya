@@ -7,7 +7,7 @@ from conf.settings import MAX_NUMBERS_of_ATTEMPTS
 from .exceptions import InvalidElementValue
 
 
-class CommonActions:
+class CommonActions:  # pylint: disable=E1101
     """Набор общих действий, которые используются в разных тестах для ИМ DNS. """
 
     def change_city(self, city: str):
