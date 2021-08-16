@@ -6,12 +6,14 @@ import pkgutil
 import time
 import traceback
 
+from xvfbwrapper import Xvfb
 from selenium import webdriver
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
+<<<<<<< HEAD
 from conf import settings
 from conf.settings import GECKO_PATH, ENTRY_POINT, TESTS_PATH, WAIT_ELEMENT
 
@@ -31,6 +33,10 @@ def wait_for_execution(func):
             else:
                 break
     return wrapper
+=======
+from conf.settings import (ENABLE_XVFB, ENTRY_POINT, GECKO_PATH,
+                           MAX_RETRIES, TEST, TESTS_PATH, WAIT_ELEMENT)
+>>>>>>> 7ddcb8f... Add xvfb
 
 
 class OrderedClass(type):
@@ -52,12 +58,15 @@ class TestBase(metaclass=OrderedClass):
 
     def __init__(self):
         self.browser = None
-        self._tests = []
+        self.tests = []
+        self.browser_window_size = (2560, 1600)
+        if ENABLE_XVFB:
+            self.xvfb = Xvfb(*self.browser_window_size)
 
         # Заполняем список тестов
         for method in self.__ordered__:
             if method.startswith('test_'):
-                self._tests.append(getattr(self, method))
+                self.tests.append(getattr(self, method))
 
     def _start_browser(self):
         """Настраивает и запускает браузер на стартовой страничке ИМ. """
@@ -67,7 +76,6 @@ class TestBase(metaclass=OrderedClass):
         # Прописываем в настройки браузера - отказ от предоставления геопозиции
         profile.set_preference("geo.enabled", False)
         self.browser = webdriver.Firefox(executable_path=GECKO_PATH, firefox_profile=profile)
-
         # Открываем стартовую страничку ИМ
         self.browser.get(ENTRY_POINT)
 
@@ -75,7 +83,7 @@ class TestBase(metaclass=OrderedClass):
         """Запускает все тесты один за другим. """
 
         # Запускаем тесты ис списка тестов по-очереди
-        for test in self._tests:
+        for test in self.tests:
             # Выводим название текущего теста
             description = test.__doc__
             out_white("{}" .format(f'Запускаю "{description}":', end=' '))
@@ -83,18 +91,24 @@ class TestBase(metaclass=OrderedClass):
             for i in range(settings.MAX_RETRIES):
                 # Запускаем тест
                 try:
+                    if ENABLE_XVFB:
+                        self.xvfb.start()
                     self._start_browser()
                     test()
                 # Отлавливаем исключения
                 except BaseException as e:
                     # Выводим сообщение об исключении на экран
                     out_grey(f'{i+1} - я попытка неудачная. Ошибка:\n' + traceback.format_exc())
+                    if ENABLE_XVFB:
+                        self.xvfb.stop()
                     self.browser.quit()
 
                     # Если попытки исчерпаны - выводим сообщение о провале
                     if i == settings.MAX_RETRIES - 1:
                         out_red(f'Провал! \n {repr(e)} \n')
                 else:
+                    if ENABLE_XVFB:
+                        self.xvfb.stop()
                     self.browser.quit()
                     # Выводим сообщение об успехе
                     out_green('Успех!')

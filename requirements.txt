@@ -1,3 +1,11 @@
+astroid==2.6.6
+isort==5.9.3
+lazy-object-proxy==1.6.0
+mccabe==0.6.1
+pylint==2.9.6
 python-dotenv==0.19.0
 selenium==3.141.0
+toml==0.10.2
 urllib3==1.26.6
+wrapt==1.12.1
+xvfbwrapper==0.2.9
