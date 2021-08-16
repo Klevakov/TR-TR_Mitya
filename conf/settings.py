@@ -30,6 +30,9 @@ MAX_NUMBERS_of_ATTEMPTS = int(os.getenv('MAX_NUMBERS_of_ATTEMPTS', '10'))
 # Максимальное время на выполнение одного теста в минутах
 BROWSER_TIMEOUT = int(os.getenv('BROWSER_TIMEOUT', '5'))
 
+# Включить XVFB
+ENABLE_XVFB = os.getenv('ENABLE_XVFB', 'true').lower() == 'true'
+
 TEST = os.getenv('TEST', '')
 if TEST:
     TEST = TEST.split(',')
