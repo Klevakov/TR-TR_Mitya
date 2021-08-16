@@ -24,11 +24,14 @@ MAX_RETRIES = int(os.getenv('MAX_RETRIES', '5'))
 # Время ожидания подгрузки элемента в секундах
 WAIT_ELEMENT = int(os.getenv('WAIT_ELEMENT', '15'))
 
-# Максимальноеколичество попыток получить нужный элемент
+# Максимальное количество попыток получить нужный элемент
 MAX_NUMBERS_of_ATTEMPTS = int(os.getenv('MAX_NUMBERS_of_ATTEMPTS', '10'))
 
 # Максимальное время на выполнение одного теста в минутах
 BROWSER_TIMEOUT = int(os.getenv('BROWSER_TIMEOUT', '5'))
+
+# Включить XVFB
+ENABLE_XVFB = os.getenv('ENABLE_XVFB', 'true').lower() == 'true'
 
 TEST = os.getenv('TEST', '')
 if TEST:

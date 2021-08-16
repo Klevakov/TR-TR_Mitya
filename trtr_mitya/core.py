@@ -3,16 +3,43 @@
 import importlib
 import inspect
 import pkgutil
+import time
 import traceback
 
+from xvfbwrapper import Xvfb
 from selenium import webdriver
 from selenium.common.exceptions import WebDriverException, NoSuchElementException
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+from conf.settings import (
+    ENABLE_XVFB,
+    ENTRY_POINT,
+    GECKO_PATH,
+    MAX_RETRIES,
+    TEST,
+    TESTS_PATH,
+    WAIT_ELEMENT,
+)
 
-from conf.settings import ENTRY_POINT, GECKO_PATH, MAX_RETRIES, TEST, TESTS_PATH, WAIT_ELEMENT
+
+def wait_for_execution(func):
+    """Декоратор для повторного вызова метода. """
+
+    def wrapper(*args, **kwargs):
+        count = 0
+        while count < 3:
+            try:
+                func(*args, **kwargs)
+            except WebDriverException:
+                time.sleep(3)
+                count += 1
+                continue
+            else:
+                break
+
+    return wrapper
 
 
 class OrderedClass(type):
@@ -35,12 +62,15 @@ class TestBase(metaclass=OrderedClass):
 
     def __init__(self):
         self.browser = None
-        self._tests = []
+        self.tests = []
+        self.browser_window_size = (2560, 1600)
+        if ENABLE_XVFB:
+            self.xvfb = Xvfb(*self.browser_window_size)
 
         # Заполняем список тестов
         for method in self.__ordered__:  # pylint: disable=E1101
             if method.startswith('test_'):
-                self._tests.append(getattr(self, method))
+                self.tests.append(getattr(self, method))
 
     def _start_browser(self):
         """Настраивает и запускает браузер на стартовой страничке ИМ. """
@@ -48,9 +78,10 @@ class TestBase(metaclass=OrderedClass):
         profile = webdriver.FirefoxProfile()
 
         # Прописываем в настройки браузера - отказ от предоставления геопозиции
-        profile.set_preference("geo.enabled", False)
-        self.browser = webdriver.Firefox(executable_path=GECKO_PATH, firefox_profile=profile)
-
+        profile.set_preference('geo.enabled', False)
+        self.browser = webdriver.Firefox(
+            executable_path=GECKO_PATH, firefox_profile=profile
+        )
         # Открываем стартовую страничку ИМ
         self.browser.get(ENTRY_POINT)
 
@@ -58,26 +89,35 @@ class TestBase(metaclass=OrderedClass):
         """Запускает все тесты один за другим. """
 
         # Запускаем тесты ис списка тестов по-очереди
-        for test in self._tests:
+        for test in self.tests:
             # Выводим название текущего теста
             description = test.__doc__
-            out_white("{}" .format(f'Запускаю "{description}":', end=' '))
+            out_white('{}'.format(f'Запускаю "{description}":', end=' '))
 
             for i in range(MAX_RETRIES):
                 # Запускаем тест
                 try:
+                    if ENABLE_XVFB:
+                        self.xvfb.start()
                     self._start_browser()
                     test()
                 # Отлавливаем исключения
                 except WebDriverException as exc:
                     # Выводим сообщение об исключении на экран
-                    out_grey(f'{i+1} - я попытка неудачная. Ошибка:\n' + traceback.format_exc())
+                    out_grey(
+                        f'{i + 1} - я попытка неудачная. Ошибка:\n'
+                        + traceback.format_exc()
+                    )
+                    if ENABLE_XVFB:
+                        self.xvfb.stop()
                     self.browser.quit()
 
                     # Если попытки исчерпаны - выводим сообщение о провале
                     if i == MAX_RETRIES - 1:
                         out_red(f'Провал! \n {repr(exc)} \n')
                 else:
+                    if ENABLE_XVFB:
+                        self.xvfb.stop()
                     self.browser.quit()
                     # Выводим сообщение об успехе
                     out_green('Успех!')
@@ -129,7 +169,7 @@ class TestBase(metaclass=OrderedClass):
         element.click()
 
     def go_to_subdirectory(self, directory_selector, subdirectory_selector):
-        """Переходит из меню в подкаталог. """
+        """Переходит из меню в подкаталог."""
 
         # Наводим мышь на ссылку каталога
         directory_elem = self.wait_for_element_clickable(directory_selector)
@@ -192,22 +232,22 @@ def run(*args):
 def out_red(text):
     """Выводит в консоль сообщение красным цветом. """
 
-    print("\033[31m {}" .format(text))
+    print('\033[31m {}'.format(text))
 
 
 def out_green(text):
     """Выводит в консоль сообщение зеленым цветом. """
 
-    print("\033[32m {}" .format(text))
+    print('\033[32m {}'.format(text))
 
 
 def out_grey(text):
     """Выводит в консоль сообщение зеленым цветом. """
 
-    print("\033[37m {}" .format(text))
+    print('\033[37m {}'.format(text))
 
 
 def out_white(text):
     """Выводит в консоль сообщение зеленым цветом. """
 
-    print("\033[38m {}" .format(text))
+    print('\033[38m {}'.format(text))
