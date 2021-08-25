@@ -4,10 +4,10 @@ import time
 from selenium.common.exceptions import TimeoutException
 
 from conf.settings import MAX_NUMBERS_of_ATTEMPTS
-from exceptions import InvalidElementValue
+from .exceptions import InvalidElementValue
 
 
-class CommonActions:
+class CommonActions:  # pylint: disable=E1101
     """Набор общих действий, которые используются в разных тестах для ИМ DNS. """
 
     def change_city(self, city: str):
@@ -24,7 +24,8 @@ class CommonActions:
                 # Вводим название города
                 find_city.send_keys(city)
 
-                # Перепроверяем варианты раскрывающегося списка на совпадение с названием искомого города
+                # Перепроверяем варианты раскрывающегося списка
+                # на совпадение с названием искомого города
                 choice = self.wait_for_elements('.cities-search span')
             except TimeoutException:
                 continue
@@ -37,7 +38,7 @@ class CommonActions:
                 break
 
         # Проверяем что выбран верный город
-        for i in range(MAX_NUMBERS_of_ATTEMPTS):
+        for _ in range(MAX_NUMBERS_of_ATTEMPTS):
             curent_city = self.find_by_css('.header-top .w-choose-city-widget-label').text
             if curent_city == city:
                 break
@@ -50,7 +51,8 @@ class CommonActions:
         """Добавляет товар и переходит в корзину. """
 
         # Тестируем на разделе "Смартфоны и гаджеты -> Смартфоны"
-        directory_selector = 'a[href="/catalog/17a890dc16404e77/smartfony-planshety-i-fototexnika/"]'
+        directory_selector = ('a[href="/catalog/17a890dc16404e77/'
+                              'smartfony-planshety-i-fototexnika/"]')
         subdirectory_selector = 'a[href="/catalog/17a8a01d16404e77/smartfony/"]'
 
         # Переходим в подкаталог "Смартфоны"

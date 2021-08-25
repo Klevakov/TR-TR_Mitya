@@ -1,10 +1,10 @@
 """Тесты корзины"""
 import time
 
-from common import CommonActions
 from conf.settings import MAX_NUMBERS_of_ATTEMPTS
-from core import TestBase
-from exceptions import InvalidElementValue
+from .common import CommonActions
+from .core import TestBase
+from .exceptions import InvalidElementValue
 
 
 class CartPageTest(TestBase, CommonActions):
@@ -44,7 +44,7 @@ class CartPageTest(TestBase, CommonActions):
         self.check_and_click('.count-buttons__icon-plus')
 
         # Ждем, пока счетчик товара не изменится на '2'
-        for i in range(MAX_NUMBERS_of_ATTEMPTS):
+        for _ in range(MAX_NUMBERS_of_ATTEMPTS):
             count = self.find_by_css('.total-amount__count').text
             count = int(count.strip().split()[1])
             if count == 2:
@@ -62,7 +62,7 @@ class CartPageTest(TestBase, CommonActions):
         self.check_and_click('.count-buttons__icon-minus')
 
         # Ждем, пока счетчик товара не изменится на '1'
-        for i in range(MAX_NUMBERS_of_ATTEMPTS):
+        for _ in range(MAX_NUMBERS_of_ATTEMPTS):
             count = self.find_by_css('.total-amount__count').text
             count = int(count.strip().split()[1])
             if count == 1:
@@ -80,7 +80,7 @@ class CartPageTest(TestBase, CommonActions):
         self.check_and_click('.count-buttons__icon-minus')
 
         # Проверяем, что в корзине не осталось товаров
-        for i in range(MAX_NUMBERS_of_ATTEMPTS):
+        for _ in range(MAX_NUMBERS_of_ATTEMPTS):
             count = self.find_by_css('.buttons .cart-link__badge').text
             if count:
                 time.sleep(2)

@@ -9,7 +9,8 @@ load_dotenv()  # берет переменные среды из .env файла
 ENTRY_POINT = os.getenv('ENTRY_POINT', 'https://www.dns-shop.ru/')
 
 # Путь к geckodriver
-GECKO_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'trtr_mitya/driver/geckodriver'))
+GECKO_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__),
+                                          '..', 'trtr_mitya/driver/geckodriver'))
 
 # Путь к модулям с тестами
 TESTS_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'trtr_mitya'))

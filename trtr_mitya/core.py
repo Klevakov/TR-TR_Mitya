@@ -3,34 +3,16 @@
 import importlib
 import inspect
 import pkgutil
-import time
 import traceback
 
 from selenium import webdriver
+from selenium.common.exceptions import WebDriverException, NoSuchElementException
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
-from conf import settings
-from conf.settings import GECKO_PATH, ENTRY_POINT, TESTS_PATH, WAIT_ELEMENT
-
-
-def wait_for_execution(func):
-    """Декоратор для повторного вызова метода. """
-
-    def wrapper(*args, **kwargs):
-        count = 0
-        while count < 3:
-            try:
-                func(*args, **kwargs)
-            except BaseException:
-                time.sleep(3)
-                count += 1
-                continue
-            else:
-                break
-    return wrapper
+from conf.settings import ENTRY_POINT, GECKO_PATH, MAX_RETRIES, TEST, TESTS_PATH, WAIT_ELEMENT
 
 
 class OrderedClass(type):
@@ -38,12 +20,13 @@ class OrderedClass(type):
 
     @classmethod
     def __prepare__(cls, _name, _bases):
-        # Возвращает словарь, ключи которого представляют упорядоченное пространство имен класса и их значения
+        # Возвращает словарь, ключи которого представляют упорядоченное пространство имен класса
+        # и их значения
         return dict()
 
     def __new__(cls, name, bases, classdict):
         # Создаем атрибут класса со списком атрибутов
-        classdict['__ordered__'] = [key for key in classdict.keys()]
+        classdict['__ordered__'] = list(classdict.keys())
         return type.__new__(cls, name, bases, classdict)
 
 
@@ -55,7 +38,7 @@ class TestBase(metaclass=OrderedClass):
         self._tests = []
 
         # Заполняем список тестов
-        for method in self.__ordered__:
+        for method in self.__ordered__:  # pylint: disable=E1101
             if method.startswith('test_'):
                 self._tests.append(getattr(self, method))
 
@@ -80,20 +63,20 @@ class TestBase(metaclass=OrderedClass):
             description = test.__doc__
             out_white("{}" .format(f'Запускаю "{description}":', end=' '))
 
-            for i in range(settings.MAX_RETRIES):
+            for i in range(MAX_RETRIES):
                 # Запускаем тест
                 try:
                     self._start_browser()
                     test()
                 # Отлавливаем исключения
-                except BaseException as e:
+                except WebDriverException as exc:
                     # Выводим сообщение об исключении на экран
                     out_grey(f'{i+1} - я попытка неудачная. Ошибка:\n' + traceback.format_exc())
                     self.browser.quit()
 
                     # Если попытки исчерпаны - выводим сообщение о провале
-                    if i == settings.MAX_RETRIES - 1:
-                        out_red(f'Провал! \n {repr(e)} \n')
+                    if i == MAX_RETRIES - 1:
+                        out_red(f'Провал! \n {repr(exc)} \n')
                 else:
                     self.browser.quit()
                     # Выводим сообщение об успехе
@@ -131,8 +114,12 @@ class TestBase(metaclass=OrderedClass):
 
     def check_by_css(self, selector):
         """Проверяет по CSS-селектору, существует ли элемент. """
-
-        return self.browser.is_element_present_by_css(selector)
+        try:
+            self.find_by_css(selector)
+        except NoSuchElementException:
+            return False
+        else:
+            return True
 
     def check_and_click(self, selector):
         """Проверяет по CSS-селектору, существует ли элемент и кликает на него. """
@@ -154,12 +141,16 @@ class TestBase(metaclass=OrderedClass):
         subdirectory_elem.click()
 
     def find_element_by_css_and_text(self, selector, text: str):
-        """Находит список элементов по селектору и возвращает тот, у которого соответствует текст. """
+        """
+        Находит список элементов по селектору и возвращает тот,
+        у которого соответствует текст.
+        """
 
         elem_list = self.wait_for_elements(selector)
         for elem in elem_list:
             if elem.text.strip() == text:
                 return elem
+        return None
 
     def click_to_first_element(self, selector):
         """Находит список элементов по селектору и кликает на первый элемент. """
@@ -178,12 +169,12 @@ def get_tests():
     # путь к модулю, название модуля и булевское значение
     for _, module_name, _ in pkgutil.iter_modules([TESTS_PATH]):
         # Передаем в переменную объект - модуль
-        mod = importlib.import_module(f'{module_name}')
+        mod = importlib.import_module(f'trtr_mitya.{module_name}')
         # Перебираем список из кортежей (название класса, объект класса)
         for cls_name, obj in inspect.getmembers(mod):
             if cls_name.endswith('Test') and inspect.isclass(obj):
-                if settings.TEST:
-                    if cls_name in settings.TEST:
+                if TEST:
+                    if cls_name in TEST:
                         tests.add(obj)
                     continue
                 tests.add(obj)
