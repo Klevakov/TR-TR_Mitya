@@ -5,14 +5,22 @@ import inspect
 import pkgutil
 import traceback
 
+from xvfbwrapper import Xvfb
 from selenium import webdriver
 from selenium.common.exceptions import WebDriverException, NoSuchElementException
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-
-from conf.settings import ENTRY_POINT, GECKO_PATH, MAX_RETRIES, TEST, TESTS_PATH, WAIT_ELEMENT
+from conf.settings import (
+    ENABLE_XVFB,
+    ENTRY_POINT,
+    GECKO_PATH,
+    MAX_RETRIES,
+    TEST,
+    TESTS_PATH,
+    WAIT_ELEMENT,
+)
 
 
 class OrderedClass(type):
@@ -36,6 +44,9 @@ class TestBase(metaclass=OrderedClass):
     def __init__(self):
         self.browser = None
         self._tests = []
+        self.browser_window_size = (2560, 1600)
+        if ENABLE_XVFB:
+            self.xvfb = Xvfb(*self.browser_window_size)
 
         # Заполняем список тестов
         for method in self.__ordered__:  # pylint: disable=E1101
@@ -66,18 +77,24 @@ class TestBase(metaclass=OrderedClass):
             for i in range(MAX_RETRIES):
                 # Запускаем тест
                 try:
+                    if ENABLE_XVFB:
+                        self.xvfb.start()
                     self._start_browser()
                     test()
                 # Отлавливаем исключения
                 except WebDriverException as exc:
                     # Выводим сообщение об исключении на экран
                     out_grey(f'{i+1} - я попытка неудачная. Ошибка:\n' + traceback.format_exc())
+                    if ENABLE_XVFB:
+                        self.xvfb.stop()
                     self.browser.quit()
 
                     # Если попытки исчерпаны - выводим сообщение о провале
                     if i == MAX_RETRIES - 1:
                         out_red(f'Провал! \n {repr(exc)} \n')
                 else:
+                    if ENABLE_XVFB:
+                        self.xvfb.stop()
                     self.browser.quit()
                     # Выводим сообщение об успехе
                     out_green('Успех!')
