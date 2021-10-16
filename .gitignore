@@ -1,4 +1,6 @@
 .idea
 __pycache__
 geckodriver.log
+LICENSE.md
+example.py
 .env
