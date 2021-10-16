@@ -68,7 +68,7 @@ class TestBase(metaclass=OrderedClass):
     def run(self):
         """Запускает все тесты один за другим. """
 
-        # Запускаем тесты ис списка тестов по-очереди
+        # Запускаем тесты из списка тестов по-очереди
         for test in self._tests:
             # Выводим название текущего теста
             description = test.__doc__
@@ -122,7 +122,7 @@ class TestBase(metaclass=OrderedClass):
         return element
 
     def wait_for_elements(self, selector):
-        """Ждет пока на подгрузится список элементов, видимых на странице. """
+        """Ждет пока подгрузится список элементов, видимых на странице. """
 
         elements = WebDriverWait(self.browser, WAIT_ELEMENT).until(
             EC.presence_of_all_elements_located((By.CSS_SELECTOR, selector))
@@ -179,7 +179,7 @@ class TestBase(metaclass=OrderedClass):
 def get_tests():
     """Возвращает список тестов. """
 
-    # Создаем пустое пустое множество для наименований тестов
+    # Создаем пустое множество для наименований тестов
     tests = set()
     # Перебираем названия
     # pkgutil.iter_modules([TESTS_PATH]) - возвращает кортеж из трех переменных:
